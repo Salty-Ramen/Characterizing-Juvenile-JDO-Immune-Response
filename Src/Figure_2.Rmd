@@ -1,0 +1,611 @@
+---
+title: "Figure-2"
+author: "Ramakrishna Suresh"
+date: "2025-03-18"
+output: html_document
+---
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r}
+
+path <- getwd()
+
+path2 <-here::here("Outputs", "JDO Manuscript Contents", "Final Figure folder", "Figure_2")
+
+# file_name <- "/Figure_2"
+
+
+source(
+  here::here("Src", "Boilerplate.R"),
+  )
+
+```
+
+
+Figure-2
+
+
+PCA
+
+```{r}
+# df_merged_all_2 %>% drop_na() %>%
+#   mutate(across(colnames_for_log, ~log10(0.003+.))) %>% 
+#   # select(-G.CSF..54., -GM.CSF..73.) %>%
+#   # filter(Day.x %in% days[i]) %>%
+#   # filter(Sex %in% sex) %>% 
+#   recipe(~.) %>% 
+#   update_role(
+#     # Mouse_ID,
+#     c("Severity_2", "Day_0_BW", "Sex", "Day.x", "Mouse_ID", "status", severity_features),
+#     new_role = "id"
+#     ) %>%
+#   step_dummy(all_factor_predictors()) %>% 
+#   step_normalize(all_numeric_predictors()) %>%
+#   step_zv(all_numeric_predictors()) %>% 
+#   step_pca(all_predictors(), num_comp = 2) %>% 
+#   prep() %>% juice() %>% 
+#   ggplot(
+#     aes(x = PC1, y = PC2, color = Sex)
+#   ) +
+#   geom_point()+
+#   facet_wrap(~Day.x)
+```
+
+
+```{r}
+
+# p1 <- df_diff %>% 
+#   # filter(Day.x>0) %>%
+#   recipe(~.) %>% 
+#   update_role(
+#     # Mouse_ID,
+#     c("Severity_2", "Day_0_BW", "Sex", "Day.x", "Mouse_ID"),
+#     new_role = "id"
+#     ) %>%
+#   step_dummy(all_factor_predictors()) %>% 
+#   step_normalize(all_numeric_predictors()) %>%
+#   # step_zv(all_numeric_predictors()) %>% 
+#   step_pca(all_predictors(), num_comp = 2) %>% 
+#   prep() %>% juice() %>% 
+#   filter(Day.x>0) %>%
+#   mutate(DPI = paste0(Day.x, " DPI")) %>% 
+#   ggplot(
+#     aes(x = PC1, y = PC2, fill = Sex, shape = Severity_2)
+#   ) +
+#   geom_point(aes(fill = Sex),
+#              size = 3)+
+#   facet_wrap(~DPI,
+#              # scales="free"
+#               )+
+#  theme_classic()+
+#   theme(panel.grid.major = element_blank(),
+#         panel.grid.minor = element_blank(),
+#         panel.background = element_blank(),
+#         # axis.line = element_line,
+#         # text = element_text(size = 20, family = 'sans'),
+#         axis.title = element_text(size = 12),
+#         axis.text = element_text(size = 10,),
+#         plot.caption = element_text(size = 15),
+#         legend.text = element_text(size = 12),
+#         legend.title = element_text(size = 15, ),
+#         # legend.background = element_rect(color = "black"),
+#         strip.background = element_blank(),
+#         strip.text = element_text(size = 15, ),
+#         # strip.clip = "on",
+#         panel.border = element_rect(fill = NA,linewidth = 1.5),
+#         axis.line = element_blank()
+#         )+
+#   labs(shape = "Severity")+
+#   scale_fill_manual(values = c("Male" = "#00BFC4", "Female" = "#F8766D"))+
+#   scale_shape_manual(values = c("mild" = 22, "severe" = 24, "control" = 21))
+# 
+# p1
+# 
+#   # ggsave(file = paste0(path ,path2,'/Figure_2', '/PCA_new_all.svg'), plot = p1, width=9, height = 6)
+
+```
+
+
+
+```{r}
+# plotlist <- list()
+# 
+# days <- c(0,3,4,5,8)
+# 
+# 
+# for (i in 2:5) {
+# 
+#   temp_df <-
+#     df_diff %>%
+#     recipe(~.) %>%
+#     update_role(
+#       # Mouse_ID,
+#       c("Severity_2", "Day_0_BW", "Sex", "Day.x", "Mouse_ID"),
+#       new_role = "id"
+#       ) %>%
+#     step_dummy(all_factor_predictors()) %>%
+#     step_normalize(all_numeric_predictors()) %>%
+#     # step_zv(all_numeric_predictors()) %>%
+#     step_pca(all_predictors(), num_comp = 2) %>%
+#     prep() %>% juice() %>%
+#     filter(Day.x>0) %>%
+#     mutate(DPI = paste0(Day.x, " DPI"))
+# 
+#  p1 <-
+#    temp_df %>%
+#    filter(Day.x == days[i]) %>%
+#   ggplot(
+#     aes(x = PC1, y = PC2, fill = Sex, shape = Severity_2)
+#   ) +
+#   geom_point(size = 3)+
+#   facet_wrap(~ DPI,
+#               )+
+#   theme_classic()+
+#   theme(panel.grid.major = element_blank(),
+#       panel.grid.minor = element_blank(),
+#       panel.background = element_blank(),
+#       # axis.line = element_line,
+#       # text = element_text(size = 20, family = 'sans'),
+#       axis.title = element_text(size = 12),
+#       axis.text = element_text(size = 10,),
+#       plot.caption = element_text(size = 15),
+#       legend.text = element_text(size = 12),
+#       legend.title = element_text(size = 15, ),
+#       # legend.background = element_rect(color = "black"),
+#       strip.background = element_blank(),
+#       strip.text = element_text(size = 15, ),
+#       # strip.clip = "on",
+#       panel.border = element_rect(fill = NA,linewidth = 1.5),
+#       axis.line = element_blank()
+#       )+
+#   xlim(-10,16)+
+#   labs(shape = "Severity")+
+#   scale_fill_manual(values = c("Male" = "#00BFC4", "Female" = "#F8766D"))+
+#   scale_shape_manual(values = c("mild" = 22, "severe" = 24, "control" = 21))
+# 
+#  plotlist[[i-1]] <- p1
+# 
+#    # ggsave(file = paste0(path2, '/PCA_new',days[i],'_DPI.svg'), plot = p1, width=8.45, height = 6)
+# 
+# }
+# 
+# 
+# 
+# plotlist[[4]]
+
+```
+```{r}
+# days <- c(0,3,4,5,8)
+# plotlist_2 <- list()
+# cutree_list <-
+#   c(6,5,6,3)
+# 
+# temp_df <- 
+#     df_diff %>% 
+#     recipe(~.) %>% 
+#     update_role(
+#       # Mouse_ID,
+#       c("Severity_2", "Day_0_BW", "Sex", "Day.x", "Mouse_ID"),
+#       new_role = "id"
+#       ) %>%
+#     step_dummy(all_factor_predictors()) %>% 
+#     step_normalize(all_numeric_predictors()) %>%
+#     # step_zv(all_numeric_predictors()) %>% 
+#     step_pca(all_predictors(), num_comp = 2) %>% 
+#     prep() %>% juice() %>% 
+#     filter(Day.x>0) %>%
+#     mutate(DPI = paste0(Day.x, " DPI"))
+# 
+# 
+# for (i in 2:5) {
+#   p <-
+#     plotlist[[i-1]]
+#   
+#   dt1 <- 
+#     df_diff %>% drop_na() %>%
+#     recipe(~.) %>% 
+#     update_role(
+#       # Mouse_ID,
+#       c("Severity_2", "Day_0_BW", "Sex", "Day.x", "Mouse_ID"),
+#       new_role = "id"
+#       ) %>%
+#     step_dummy(all_factor_predictors()) %>% 
+#     step_normalize(all_numeric_predictors()) %>%
+#     prep() %>% juice() %>% 
+#     filter(Day.x==days[i]) %>% 
+#     select(colnames_for_log, Mouse_ID)
+#   
+#   hc_fit <- hc_spec %>%
+#       fit(~ .,
+#       data = dt1 %>% select(-Mouse_ID)
+#       )
+#   
+#   
+#   clusters_hc_fit<- cutree(hc_fit$fit, k =  cutree_list[i-1])
+#     
+#   df_cluster <- 
+#     temp_df %>% filter(Day.x == days[i]) %>% 
+#     mutate(hclust = clusters_hc_fit)
+#   
+#   p1 <-  
+#    df_cluster %>% 
+#    filter(Day.x == days[i]) %>% 
+#   ggplot(aes(x = PC1, y = PC2, fill = Sex)) +
+#     geom_point(aes(fill = Sex, shape = Severity_2), size = 3, ) +
+#     geom_mark_ellipse(aes(
+#       color = as.factor(hclust),
+#       label = as.factor(hclust),
+#       fill = NULL
+#     )) +
+#   guides(fill = "none") +
+#     theme_classic() +
+#     theme(
+#       panel.grid.major = element_blank(),
+#       panel.grid.minor = element_blank(),
+#       panel.background = element_blank(),
+#       # axis.line = element_line,
+#       # text = element_text(size = 20, family = 'sans'),
+#       axis.title = element_text(size = 15),
+#       axis.text = element_text(size = 10, ),
+#       plot.caption = element_text(size = 15),
+#       legend.text = element_text(size = 12),
+#       legend.title = element_text(size = 15, ),
+#       legend.position = "none",
+#       plot.title = element_text(hjust = 0.5),
+#       # legend.background = element_rect(color = "black"),
+#       strip.text = element_text(size = 15, ),
+#       # strip.clip = "on",
+#       panel.border = element_rect(fill = NA, linewidth = 1.5),
+#       # axis.line = element_blank()
+#     ) +
+#     labs(shape = "Severity", color = "Hierarchical clusters", title = paste0(days[i], " DPI")) +
+#     scale_fill_manual(values = c("Male" = "#00BFC4", "Female" = "#F8766D")) +
+#     scale_shape_manual(values = c(
+#       "mild" = 22,
+#       "severe" = 24,
+#       "control" = 21
+#     )) +
+#     xlim(c(-10, 16)) +
+#     ylim(c(-5, 5))
+#     
+#   plotlist_2[[i-1]] <- p1
+#   
+#   
+# }
+# 
+# plotlist_2[1:4]
+```
+
+
+```{r}
+
+# plotlist_2 <- list()
+# 
+# days <- c(0,3,4,5,8)
+# cutree_list <-
+#   c(6,5,6,3)
+# 
+# for (i in 2:5) {
+#   
+# 
+#   
+#   day_n_pca_comps <-  
+#     df_diff %>% drop_na() %>%
+#       filter(Day.x==days[i]) %>%
+#     recipe(~.) %>% 
+#     update_role(
+#       # Mouse_ID,
+#       c("Severity_2", "Day_0_BW", "Sex", "Day.x", "Mouse_ID"),
+#       new_role = "id"
+#       ) %>%
+#     step_dummy(all_factor_predictors()) %>% 
+#     step_normalize(all_numeric_predictors()) %>%
+#     # step_zv(all_numeric_predictors()) %>% 
+#     step_pca(all_predictors(), num_comp = 2) %>% 
+#     prep()
+#   
+#   
+#   tidied_pca <- tidy(day_n_pca_comps, 3)
+#   
+#   
+#   dt1 <- 
+#     df_diff %>% drop_na() %>%
+#     filter(Day.x==days[i]) %>% 
+#     recipe(~.) %>% 
+#     update_role(
+#       # Mouse_ID,
+#       c("Severity_2", "Day_0_BW", "Sex", "Day.x", "Mouse_ID"),
+#       new_role = "id"
+#       ) %>%
+#     step_dummy(all_factor_predictors()) %>% 
+#     step_normalize(all_numeric_predictors()) %>%
+#     prep() %>% juice() %>% 
+#     select(colnames_for_log, Mouse_ID)
+#   
+#   hc_fit <- hc_spec %>%
+#       fit(~ .,
+#       data = dt1 %>% select(-Mouse_ID)
+#       )
+#   
+#   
+#   clusters_hc_fit<- cutree(hc_fit$fit, k =  cutree_list[i-1])
+#     
+#   df_cluster <- 
+#     day_n_pca_comps %>% juice() %>% filter(Day.x == days[i]) %>% 
+#     mutate(hclust = clusters_hc_fit)
+#   
+#   plot1 <- df_cluster %>%
+#     ggplot(aes(x = PC1, y = -PC2, fill = Sex)) +
+#     geom_point(aes(fill = Sex, shape = Severity_2), size = 3, ) +
+#     geom_mark_ellipse(aes(
+#       color = as.factor(hclust),
+#       label = as.factor(hclust),
+#       fill = NULL
+#     )) +
+#     guides(fill = "none") +
+#     theme_classic() +
+#     theme(
+#       panel.grid.major = element_blank(),
+#       panel.grid.minor = element_blank(),
+#       panel.background = element_blank(),
+#       # axis.line = element_line,
+#       # text = element_text(size = 20, family = 'sans'),
+#       axis.title = element_text(size = 15),
+#       axis.text = element_text(size = 10, ),
+#       plot.caption = element_text(size = 15),
+#       legend.text = element_text(size = 12),
+#       legend.title = element_text(size = 15, ),
+#       legend.position = "none",
+#       plot.title = element_text(hjust = 0.5),
+#       # legend.background = element_rect(color = "black"),
+#       strip.text = element_text(size = 15, ),
+#       # strip.clip = "on",
+#       panel.border = element_rect(fill = NA, linewidth = 1.5),
+#       # axis.line = element_blank()
+#     ) +
+#     labs(shape = "Severity", color = "Hierarchical clusters", title = paste0(days[i], " DPI")) +
+#     scale_fill_manual(values = c("Male" = "#00BFC4", "Female" = "#F8766D")) +
+#     scale_shape_manual(values = c(
+#       "mild" = 22,
+#       "severe" = 24,
+#       "control" = 21
+#     )) +
+#     xlim(c(-10, 16)) +
+#     ylim(c(-5, 5))
+#   
+#   plotlist_2[[i-1]] <- plot1
+# }
+# 
+# # ggsave(file = paste0(path2, '/PCA_hclust_day8_final_updates.svg'), plot = plot1, width=9, height = 6)
+# 
+# plotlist_2[1:4]
+  
+```
+
+```{r}
+# p3 <- ((plotlist[[1]]+plotlist[[2]]+plotlist[[3]]+plotlist[[4]])| plot1) +
+#   plot_layout(guides = "collect")+
+#   plot_annotation(tag_levels = "A")
+#   
+# p3
+# 
+# # ggsave(file = paste0(path2, '/Fig2_Combined.svg'), plot = p3, width=18, height = 7.5)
+# 
+
+```
+
+
+```{r}
+# p4 <- ((plotlist_2[[1]]+plotlist_2[[2]]+plotlist_2[[3]]+plotlist_2[[4]])) +
+#   plot_layout(guides = "collect")+
+#   plot_annotation(tag_levels = "A")
+#   
+# p4
+# 
+# # ggsave(file = paste0(path2 '/Supplemental_Figure_4.svg'), plot = p4, width=12, height = 9)
+
+
+```
+
+
+```{r}
+plotlist_3 <- list()
+days <- c(0,3,4,5,8)
+cutree_list <- c(6,5,6,3)
+
+npc_xlist <- c(1, 1, 1, 1)
+npc_ylist <- c(1,0,1,1)
+
+
+fisher_p <- function(tab) {
+  if (any(dim(tab) > 2)) fisher.test(tab, simulate.p.value = TRUE, B = 9999)$p.value
+  else fisher.test(tab)$p.value
+}
+
+for (i in 2:5) {
+
+  day_n_pca_comps <-  
+    df_diff %>% drop_na() %>%
+    filter(Day.x == days[i]) %>%
+    recipe(~ .) %>% 
+    update_role(c("Severity_2","Day_0_BW","Sex","Day.x","Mouse_ID"), new_role = "id") %>%
+    step_dummy(all_factor_predictors()) %>% 
+    step_normalize(all_numeric_predictors()) %>%
+    step_pca(all_predictors(), num_comp = 2) %>% 
+    prep()
+
+  dt1 <- df_diff %>% drop_na() %>%
+    filter(Day.x == days[i]) %>% 
+    recipe(~ .) %>% 
+    update_role(c("Severity_2","Day_0_BW","Sex","Day.x","Mouse_ID"), new_role = "id") %>%
+    step_dummy(all_factor_predictors()) %>% 
+    step_normalize(all_numeric_predictors()) %>%
+    prep() %>% juice() %>% 
+    select(colnames_for_log, Mouse_ID)
+
+  hc_fit <- hc_spec %>% fit(~ ., data = dt1 %>% select(-Mouse_ID))
+  clusters_hc_fit <- cutree(hc_fit$fit, k = cutree_list[i - 1])
+
+  df_cluster <- day_n_pca_comps %>% juice() %>% 
+    filter(Day.x == days[i]) %>% 
+    mutate(hclust = clusters_hc_fit)
+
+  top_2_clusters <- df_cluster %>% 
+    count(hclust, sort = TRUE) %>% 
+    slice_head(n = 2) %>% 
+    pull(hclust) %>% unique()
+
+  # contingency tables limited to the top two clusters
+  tab_sex <- df_cluster %>% drop_na() %>%
+    filter(hclust %in% top_2_clusters[1:2]) %>% 
+    mutate(hclust = as.factor(hclust)) %>%
+    select(Sex, hclust) %>% table()
+
+  tab_sev <- df_cluster %>% drop_na() %>%
+    filter(hclust %in% top_2_clusters[1:2]) %>% 
+    mutate(hclust = as.factor(hclust)) %>%
+    select(Severity_2, hclust) %>% table()
+
+  p_sex <- fisher_p(tab_sex)
+  p_sev <- fisher_p(tab_sev)
+
+  # --- single-column p-value table with dynamic header ---
+  colname <- sprintf("Fisher p-value\nCluster %s and %s",
+                     top_2_clusters[1], top_2_clusters[2])
+
+  pval_tbl <- tibble::tibble(
+    Measure = c("Sex", "Severity"),
+    value   = c(sprintf("%1.3g", p_sex), sprintf("%1.3g",p_sev))
+  )
+  names(pval_tbl)[2] <- colname
+
+  pval_inset <- tibble::tibble(
+    npcx  = npc_xlist[i-1],   # adjust placement to taste
+    npcy  = npc_ylist[i-1],
+    label = list(pval_tbl)
+  )
+
+  # ---- main plot with table inset ----
+  pp <- df_cluster %>%
+    ggplot(aes(x = PC1, y = PC2, fill = Sex)) +
+    geom_point(aes(fill = Sex, shape = Severity_2), size = 3) +
+    geom_mark_ellipse(aes(group = as.factor(hclust),
+                          label = as.factor(hclust),
+                          fill = NULL)) +
+    # guides(fill = "none") +
+    theme_classic() +
+    theme(panel.border = element_rect(fill = NA, linewidth = 1.5),
+          plot.title = element_text(size = 15, hjust = 0.5),
+          axis.text = element_text(size = 12),
+          axis.title = element_text(size = 15),
+          legend.text = element_text(size = 20),
+          legend.title = element_text(size = 25)) +
+    labs(title = paste(days[i], "DPI"),
+         shape = "Severity",
+         color = "Hierarchical clusters") +
+    scale_fill_manual(values = c("Male" = "#00BFC4", "Female" = "#F8766D")) +
+    scale_shape_manual(values = c("mild" = 22, "severe" = 24, "control" = 21)) +
+    xlim(c(-10, 16)) + ylim(c(-5, 5)) +
+    ggpp::geom_table_npc(
+      data = pval_inset,
+      aes(npcx = npcx, npcy = npcy, label = label),
+    )
+
+  plotlist_3[[i-1]] <- pp
+  
+}
+
+plotlist_3[1:4]
+```
+
+```{r}
+p5 <- ((plotlist_3[[1]]+plotlist_3[[2]]+plotlist_3[[3]]+plotlist_3[[4]])) +
+  plot_layout(guides = "collect")+
+  plot_annotation(tag_levels = "A")
+  
+p5
+
+# ggsave(file = paste0(path2, '/Figure_2_final.svg'), plot = p5, width=15, height = 9)
+
+
+```
+
+Supplement
+
+```{r}
+# library(tidyverse)
+# library(tidymodels)
+
+# --- Run PCA on the same preprocessed data used in your loop ---
+# Using one representative day (or you can loop over all days)
+
+scree_plots <- list()
+
+for (i in 2:5) {
+  
+  dt1 <- 
+    df_diff %>% drop_na() %>%
+    recipe(~.) %>% 
+    update_role(
+      c("Severity_2", "Day_0_BW", "Sex", "Day.x", "Mouse_ID"),
+      new_role = "id"
+    ) %>%
+    step_dummy(all_factor_predictors()) %>% 
+    step_normalize(all_numeric_predictors()) %>%
+    prep() %>% juice() %>% 
+    filter(Day.x == days[i]) %>% 
+    select(all_of(colnames_for_log))
+  
+  # Run PCA
+  pca_result <- prcomp(dt1, center = FALSE, scale. = FALSE)  
+  # center/scale already done by recipe
+  
+  # Extract variance explained
+  var_explained <- pca_result$sdev^2
+  pve <- var_explained / sum(var_explained) * 100
+  
+  scree_df <- tibble(
+    PC = factor(seq_along(pve), levels = seq_along(pve)),
+    Variance_Explained = pve,
+    Cumulative = cumsum(pve)
+  )
+  
+  scree_plots[[i - 1]] <- 
+    ggplot(scree_df, aes(x = PC, y = Variance_Explained)) +
+    geom_col(fill = "steelblue", alpha = 0.8) +
+    geom_line(aes(x = as.numeric(PC), y = Variance_Explained), 
+              linewidth = 0.8, color = "black") +
+    geom_point(aes(x = as.numeric(PC), y = Variance_Explained), 
+               size = 2) +
+    geom_line(aes(x = as.numeric(PC), y = Cumulative), 
+              linewidth = 0.8, color = "red", linetype = "dashed") +
+    geom_point(aes(x = as.numeric(PC), y = Cumulative), 
+               size = 2, color = "red") +
+    theme_classic() +
+    theme(
+      axis.title = element_text(size = 15),
+      axis.text = element_text(size = 10),
+      plot.title = element_text(hjust = 0.5, size = 15),
+      panel.border = element_rect(fill = NA, linewidth = 1.5)
+    ) +
+    labs(
+      x = "Principal Component",
+      y = "% Variance Explained",
+      title = paste0(days[i], " DPI")
+    )
+}
+
+# Display all scree plots together
+library(patchwork)
+scree_patchwork <-
+  wrap_plots(scree_plots, ncol = 2)
+ggsave(file = paste0(path2, '/PCA_Scree.pdf'), plot = scree_patchwork, width = 12, height = 10, dpi = 300)
+
+```

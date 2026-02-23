@@ -1,0 +1,443 @@
+---
+title: "Figure-1"
+author: "Ramakrishna Suresh"
+date: "2025-03-17"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+
+path <- getwd()
+
+path2 <-here::here("Outputs", "JDO Manuscript Contents", "Final Figure folder", "Figure_1")
+
+file_name <- "/Figure_1"
+
+
+source(
+  here::here("Src", "Boilerplate.R"),
+  )
+
+```
+
+Figure - 1
+
+
+```{r}
+stat.test.sevlabels <- 
+  df_merged_all_2 %>% 
+    pivot_longer(
+        cols = severity_features %>% all_of(), 
+        names_to = "variable",
+        values_to = "value"
+    ) %>% 
+  mutate(variable = case_when(variable %in% "Viral.Burden"~ "Viral Burden",
+                              variable %in% "BAL.protein" ~ "BAL Protein",
+                              variable %in% "BAL.Cell.counts" ~ "BAL Cell Count",
+                              .default = variable),
+         ) %>% 
+  # filter(!(Day.x == 0)) %>% 
+  group_by(Day.x, variable) %>%
+   mutate(value = case_when(
+  ! variable %in% c("Hysteresis") ~ log10(1+value),
+    .default = value,
+    )) %>% 
+  t_test(value ~ Sex) %>% 
+  add_x_position(x = "Day.x",) %>% 
+  ungroup() %>% 
+  group_by(Day.x) %>%
+  # adjust_pvalue(method = "BH") %>% 
+  add_significance() %>% 
+  filter(p < 0.05) %>%
+  mutate(p.adj.signif ="*")
+
+
+
+
+# p1 <- 
+#   df_merged_all_2 %>%
+#   pivot_longer(cols = severity_features %>% all_of(),
+#                names_to = "variable",
+#                values_to = "value") %>%
+#   mutate(value = case_when(!variable %in% c("Hysteresis") ~ log10(1 + value), .default = value, )) %>%
+#   mutate(variable = case_when(variable %in% "Viral.Burden"~ "Viral Burden",
+#                               variable %in% "BAL.protein" ~ "BAL Protein",
+#                               variable %in% "BAL.Cell.counts" ~ "BAL Cell Count",
+#                               .default = variable),
+#          ) %>% 
+#   # mutate(Severity = Severity_2) %>%
+#   select(-Severity_2) %>%
+#   drop_na() %>%
+#   group_by(Day.x, Sex, variable) %>%
+#   mutate(
+#     mean = mean(value),
+#     sd = sd(value),
+#     len = length(value),
+#     SE = sd / sqrt(length(value)),
+#     ymin = mean - SE,
+#     ymax = mean + SE,
+#   ) %>%
+#   ungroup() %>%
+#   ggplot() +
+#   geom_errorbar(
+#     aes(
+#       x = Day.x %>% as.factor(),
+#       ymin = ymin,
+#       ymax = ymax,
+#       group = Sex,
+#     ),
+#     width = 0.2,
+#     linewidth = 0.5,
+#     position = position_dodge(width = 0.3),
+#   ) +
+#   geom_point(
+#     aes(y = mean, x = as.factor(Day.x), fill = Sex),
+#     position = position_dodge(width = 0.3),
+#     size = 3,
+#     shape = 21
+#   ) +
+#   geom_text(
+#     data = stat.test.sevlabels,
+#     aes(
+#       x = x,
+#       y = 0.925 %>% as_npc(),
+#       label = p.adj.signif
+#     ),
+#     color = "black",
+#     size = 5
+#   ) +
+#   
+#   facet_wrap( ~ factor(variable, levels = c("Viral Burden", "BAL Cell Count", "BAL Protein", "Hysteresis")), ncol = 2, scales = 'free') +
+#   labs(color = "Sex") +
+#   ylab("log10 Concentration") +
+#   theme_classic() +
+#   xlab("Days Post Infection") +
+#   scale_y_continuous(expand = expansion(mult = c(0.05, 0.15))) +
+#   scale_fill_manual(values = c("Male" = "#00BFC4", "Female" = "#F8766D")) +
+#   theme(
+#     panel.grid.major = element_blank(),
+#     panel.grid.minor = element_blank(),
+#     panel.background = element_blank(),
+#     # axis.line = element_line,
+#     # text = element_text(size = 20, family = 'sans'),
+#     axis.title = element_text(size = 12),
+#     axis.text = element_text(size = 10, ),
+#     plot.caption = element_text(size = 15),
+#     legend.text = element_text(size = 12),
+#     legend.title = element_text(size = 15, ),
+#     # legend.background = element_rect(color = "black"),
+#     strip.background = element_blank(),
+#     strip.text = element_text(size = 15, ),
+#     # strip.clip = "on",
+#     panel.border = element_rect(fill = NA, linewidth = 1.5),
+#     axis.line = element_blank()
+#   )
+# 
+# p1
+
+# ggsave(file = paste0(path ,path2,'/Figure_1', '/Severity_labels.svg'), plot = p1, width=9, height = 6)
+
+```
+
+```{r}
+
+
+ylab_vector <- 
+  c("log10 relative expression", paste0("log10 ", "\U03BC", "g/mL"), "log10 Counts", "Hysteresis score")
+
+plotlist <- 
+  list()
+
+severity_features_2 <- c("Viral Burden", "BAL Protein", "BAL Cell Count", "Hysteresis")
+  
+
+for (i in 1:4) {
+
+  temp_df <-
+    df_merged_all_2 %>% 
+    pivot_longer(cols = severity_features %>% all_of(), 
+                 names_to = "variable",
+                 values_to = "value") %>% 
+    mutate(value = case_when(
+      ! variable %in% c("Hysteresis") ~ log10(1+value),
+      .default = value,
+      )) %>% 
+    mutate(variable = case_when(variable %in% "Viral.Burden"~ "Viral Burden",
+                              variable %in% "BAL.protein" ~ "BAL Protein",
+                              variable %in% "BAL.Cell.counts" ~ "BAL Cell Count",
+                              .default = variable),
+         ) %>% 
+    # mutate(Severity = Severity_2) %>%   select(-Severity_2) %>% 
+  # drop_na() %>% 
+    group_by(Day.x,Sex,variable) %>%
+    mutate(
+      mean = mean(value),
+      sd = sd(value),
+      len = length(value),
+      SE = sd/sqrt(length(value)),
+      ymin = mean - SE,
+      ymax = mean + SE,
+      ) %>%
+    ungroup() %>% 
+    filter(variable %in% severity_features_2[i])
+  
+  p1 <-
+    temp_df %>%
+    ggplot() +
+    geom_errorbar(
+      aes(
+        x = Day.x %>% as.factor(),
+        ymin = ymin,
+        ymax = ymax,
+        group = Sex,
+      ),
+      width = 0.2,
+      linewidth = 0.5,
+      position = position_dodge(width = 0.3),
+    ) +
+    geom_point(
+      aes(y = mean, x = as.factor(Day.x), fill = Sex),
+      position = position_dodge(width = 0.3),
+      size = 3,
+      shape = 21
+    ) +
+    geom_text(
+      data = stat.test.sevlabels %>% filter(variable %in% severity_features_2[i]),
+      aes(
+        x = x,
+        y = 0.925 %>% as_npc(),
+        label = p.adj.signif
+      ),
+      color = "black",
+      size = 7
+    ) +
+    
+    facet_wrap( ~ variable, ncol = 2, scales = 'free') +
+    labs(color = "Sex") +
+    ylab(ylab_vector[i]) +
+    theme_classic() +
+    xlab("Days Post Infection") +
+    scale_y_continuous(expand = expansion(mult = c(0.05, 0.15))) +
+    scale_fill_manual(values = c("Male" = "#00BFC4", "Female" = "#F8766D")) +
+    theme(
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      panel.background = element_blank(),
+      # axis.line = element_line,
+      # text = element_text(size = 20, family = 'sans'),
+      axis.title = element_text(size = 12),
+      axis.text = element_text(size = 12, ),
+      plot.caption = element_text(size = 15),
+      legend.text = element_text(size = 12),
+      legend.title = element_text(size = 15),
+      # legend.background = element_rect(color = "black"),
+      strip.background = element_blank(),
+      strip.text = element_text(size = 15, ),
+      # strip.clip = "on",
+      panel.border = element_rect(fill = NA, linewidth = 1.5),
+      axis.line = element_blank()
+    )
+  
+  plotlist[[i]] <- p1
+   
+}
+
+
+
+plotlist[[4]]
+```
+
+```{r}
+
+weights_wilcox <- bind_rows(
+    df_bws_merged_2 %>% 
+      filter(control != "Control") %>%
+      filter((Group == 'Day 3' & DPI == 3 )),
+    df_bws_merged_2 %>% 
+      filter(control != "Control") %>%
+      filter((Group == 'Day 4' & DPI == 4 )),
+    df_bws_merged_2 %>% 
+      filter(control != "Control") %>%
+      filter((Group == 'Day 5' & DPI == 5 )),
+    df_bws_merged_2 %>% 
+      filter(control != "Control") %>%
+      filter((Group == 'Day 8' & DPI == 8 )),
+  ) %>%  
+  filter(!(DPI == 0)) %>% 
+  group_by(DPI) %>% 
+  wilcox_test(BWs ~ Sex) %>%
+  add_x_position(x = "DPI", dodge = 1) %>% 
+  adjust_pvalue(method = "BH") %>% 
+  add_significance() %>% 
+  mutate(x = x+1) %>% 
+  filter(p.adj < 0.05) %>% 
+  mutate(p.adj.signif = "*")
+
+p2 <- 
+  bind_rows(
+    df_bws_merged_2 %>%
+      filter(control == "Control") %>%
+      filter( DPI == 0 ),
+    df_bws_merged_2 %>% 
+      filter(control != "Control") %>%
+      filter((Group == 'Day 3' & DPI == 3 )),
+    df_bws_merged_2 %>% 
+      filter(control != "Control") %>%
+      filter((Group == 'Day 4' & DPI == 4 )),
+    df_bws_merged_2 %>% 
+      filter(control != "Control") %>%
+      filter((Group == 'Day 5' & DPI == 5 )),
+    df_bws_merged_2 %>% 
+      filter(control != "Control") %>%
+      filter((Group == 'Day 8' & DPI == 8 )),
+    ) %>%  
+  # mutate(
+  #   status = case_when(
+  #     control == "Control" ~ control,
+  #     .default = Severity_2
+  #   )
+  # ) %>% 
+  select(-Severity_2) %>% 
+  drop_na() %>% 
+  # filter(DPI != 7) %>%
+  group_by(Group, control) %>% 
+  mutate(
+    means = mean(BWs),
+    sd = sd(BWs),
+    SE = sd/sqrt(length(BWs)),
+    ymin = means - SE,
+    ymax = means + SE,
+    ) %>% 
+  ungroup() %>% 
+  ggplot()+
+  geom_errorbar(
+    aes(ymin = ymin,
+        ymax = ymax,
+        x = DPI %>% as.factor(),
+        group = Sex),
+    linewidth = 0.5,
+    position=position_dodge(width=0.3),
+    width = 0.25,
+  )+
+  geom_point(
+    aes(x = DPI %>% as.factor(),
+        y = means,
+        fill = control),
+    shape = 21,
+    position=position_dodge(width=0.3),
+    size = 3
+    )+
+  geom_text(
+    data = weights_wilcox,
+    aes(x = x,
+        y = 0.925 %>% as_npc(),
+        label = p.adj.signif),
+    color = "black",
+    size = 7
+  )+
+  
+  theme_classic()+  
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        # axis.line = element_line,
+        # text = element_text(size = 20, family = 'sans'),
+        axis.title = element_text(size = 15),
+        axis.text = element_text(size = 12,),
+        plot.caption = element_text(size = 15),
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 15, ),
+        # legend.background = element_rect(color = "black"),
+        strip.text = element_text(size = 15, ),
+        # strip.clip = "on",
+        panel.border = element_rect(fill = NA,linewidth = 1.5),
+        # axis.line = element_blank()
+        )+
+  scale_fill_manual(
+    name = "Sex",
+    values = c("Male" = "#00BFC4", "Female" = "#F8766D"))+
+   scale_y_continuous(
+    expand = expansion(mult = c(0.05, 0.15))
+  )+
+  labs(
+    y = "Bodyweight Fraction",
+    x = "Days Post Infection"
+  )
+
+p2
+
+p22 <-
+  p2 + guides(fill = "none")
+
+
+
+# ggsave(file = paste0(path ,path2,'/Figure_1', '/Weights.svg'), plot = p2, width=4.5, height = 3)
+```
+
+
+```{r}
+p3 <- ((p22|plotlist[[1]]+plotlist[[3]]+plotlist[[2]]+plotlist[[4]])) +
+  plot_annotation(tag_levels = "A")+
+  plot_layout(guides = "collect")
+  
+p3
+
+# ggsave(file = paste0(path2, '/Figure_1_Combined.svg'), plot = p3, width=18, height = 7.5)
+
+p3
+```
+
+```{r}
+
+# p22 <- align_patches(
+#   p2,p1
+# )[[1]]
+# 
+# p22
+
+# ggsave(file = paste0(path2, '/Weights_2.svg'), plot = p2, width=9, height = 6)
+```
+
+
+Supplemental
+
+
+```{r}
+df_temp <- df_merged_all_2 %>%
+  group_by(Sex, Day.x) %>%
+  filter(Day.x>0) %>% 
+  mutate(
+    median_viral = median(Viral.Burden),
+    bool_viral = (Viral.Burden > median(Viral.Burden)),
+    median_balprotein = median(BAL.protein),
+    bool_balprotein =   (BAL.protein > median(BAL.protein)), 
+    median_balcellcount = median(BAL.Cell.counts),
+    bool_balcellcount =  (BAL.Cell.counts > median(BAL.Cell.counts)),
+    median_hysteresis = median(Hysteresis),
+    bool_hysteresis =  (Hysteresis > median(Hysteresis)),
+    
+    severe_criteria = bool_viral + bool_balprotein + bool_balcellcount + bool_hysteresis,
+    ) %>% 
+  ungroup() %>% 
+  group_by(Sex, Day.x) %>%
+  mutate(
+    Severity_2 = case_when(
+      severe_criteria >= 2 ~ "severe",
+      severe_criteria < 2 ~ "mild",
+      )
+    ) %>%
+  select(Mouse_ID, Day.x, Sex, severity_features, severe_criteria, starts_with("bool"), starts_with("median")) %>%
+  ungroup() 
+
+# df_temp %>% 
+#   write_csv(file = paste0(path2, "/SeverityLabelsAssignment.csv"))
+
+```
+
+

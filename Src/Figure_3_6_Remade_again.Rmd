@@ -1,0 +1,545 @@
+---
+title: "Figure_3_6_remade_again"
+author: "Ramakrishna Suresh"
+date: "2025-04-30"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+# path <- "C:/Users/srks9/OneDrive - University of Pittsburgh/Documents/Research/JDO Project/Data Copy"
+
+path <- getwd()
+
+path2 <-here::here("Outputs", "JDO Manuscript Contents", "Final Figure folder", "Figure_3_6_redone")
+
+source(
+  here::here("Src", "Boilerplate.R"),
+  )
+
+
+```
+
+```{r}
+
+days<- c(0,3,4,5,8)
+
+
+df_aov_merged <- data.frame(
+  coef_names = NA,
+    coef_pvalues = NA,
+    varname = NA,
+  pvalue_signif = NA
+)
+
+
+for (x in 2:5) {
+  
+
+for (i in colnames_for_log) {
+  
+  temp <- df_merged_all_2 %>% 
+    select(i,Sex,Day.x, status) %>% 
+    filter(Day.x %in% c(0,days[x])) %>% 
+    pivot_longer(
+      cols = i, 
+        names_to = "variable",
+        values_to = "value"
+    ) %>% 
+  mutate(Day.x = as.factor(Day.x))
+  
+  if (i %in% colnames_for_log) {
+    temp <- temp %>%
+      mutate(value = log10(0.003+value))
+  }
+  
+  temp<- temp %>% 
+    as.data.frame()
+  
+  
+  res_2 <- aov(value ~ status*(Sex), data = temp) %>% summary()
+  
+  res_2 <- res_2[[1]] %>% as.data.frame()
+
+  df_aov_merged <- bind_rows(
+    df_aov_merged,
+    data.frame(
+      varname = i,
+      DPI = days[x],
+      coef_names = res_2 %>% rownames(),
+      coef_pvalues = res_2$`Pr(>F)`
+      
+      ) %>% 
+      mutate(
+        pvalue_signif = case_when(coef_pvalues <= 0.05 ~ "*",
+                                  coef_pvalues > 0.05 ~ ""
+                                  )
+      )
+  )
+}
+  
+}
+
+
+df_aov_merged <- df_aov_merged %>% drop_na()
+
+df_aov_merged <- 
+  df_aov_merged %>% 
+  mutate(across(coef_names, \(x) stringr::str_remove_all(x, " "))) %>% 
+  mutate(pvalue_signif = case_when(
+    coef_names %in% "status" ~ "^",
+    coef_names %in% "status:Sex" ~ "+",
+    .default = pvalue_signif
+  ))
+
+```
+
+```{r}
+df_aov_merged_graph <- df_aov_merged %>% 
+  filter(! coef_names %in% "Residuals") %>% 
+  filter(coef_pvalues < 0.05) %>% 
+  mutate(
+    ypos_npc = case_when(
+      coef_names %in% "Sex" ~ 0.95,
+      coef_names %in% "status" ~ 0.9,
+      coef_names %in% "status:Sex" ~ 0.85,
+    ),
+    variable = varname
+  ) %>% 
+  select(-varname)
+
+# df_aov_merged_graph %>% View()
+
+
+
+```
+
+```{r}
+
+p1 <-
+  df_merged_severity_2 %>% 
+  select(Mouse_ID, Severity_2) %>% 
+  right_join(df_merged_all,
+             by =join_by( Mouse_ID)) %>% 
+  mutate(Severity_2 = ifelse(Day.x == 0, "control", Severity_2)) %>% 
+  mutate(categories = paste(Severity_2, Sex, sep= '_')) %>% 
+  pivot_longer(
+        cols = cytokine_names %>% all_of(), 
+        names_to = "variable",
+        values_to = "value"
+    ) %>% group_by(Day.x,categories,variable) %>%   
+  mutate(value = log10(0.003+value)) %>%
+    mutate(mean = mean(value),
+           SE = sd(value)/sqrt(length(value)),
+           sd = sd(value),
+           ymin = mean(value) - SE,
+           ymax = mean(value) + SE,
+           ) %>% 
+  ungroup() %>% 
+  ggplot(
+    mapping = aes(
+      x = as.character(Day.x),
+      group = categories,
+      ),
+    ) +
+  geom_errorbar(
+      aes(ymin = ymin,
+          ymax = ymax,
+          x = as.character(Day.x),
+          group = categories),
+    linewidth = 0.5,
+    position = position_dodge(width = 0.5),
+    width = 0.25,
+  )+
+
+  geom_line(
+    aes(x = as.character(Day.x),
+        y = mean,
+        color = Sex,
+        group = categories),
+    position=position_dodge(width=0.5),
+    # color = "black",
+    linetype = 2,
+  ) +  
+  
+  geom_point(
+    aes(x = as.character(Day.x),
+        y = mean,
+        fill= Sex,
+        shape = Severity_2,),
+  position=position_dodge(width=0.5),
+  size= 1.75,
+  )+
+  geom_point(
+    data = df_aov_merged_graph %>% 
+      filter(variable %in% cytokine_names),
+    aes(y = as_npc(ypos_npc),
+        x = as.character(DPI),
+        group = NULL),
+    shape = 22,
+    fill = "grey",
+    size = 3
+  )+
+  geom_point(
+    data = df_aov_merged_graph %>% 
+      filter(variable %in% cytokine_names  ),
+    aes(y = as_npc(ypos_npc),
+        x = as.character(DPI),
+        group = NULL),
+    shape = 22,
+    fill = "grey",
+    size = 3
+  )+
+  facet_wrap(~variable,
+             ncol = 6,
+             scales = 'free') +
+  labs(
+    # title = "Visualizing the Cytokine Data of JDO mice",
+    # subtitle = "Data Grouped by Weights",
+    # caption = "Errorbars width: 1 SE on each side\nSex = *, Severity = x\nMild:Sex = ^, Severe:Sex = +",
+    fill = "Sex"
+    )+
+  scale_fill_manual(values = c("Male" = "#00BFC4", "Female" = "#F8766D"))+
+  scale_shape_manual(values = c("mild" = 22, "severe" = 24, "control" = 21))+
+  # labs(caption = "Data log1p transformed")+
+  ylab("log10 Concentration") +
+  theme_classic()+
+  xlab("Days Post Infection")+
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        # axis.line = element_line,
+        # text = element_text(size = 20, family = 'sans'),
+        axis.title = element_text(size = 20),
+        axis.text = element_text(size = 12, face = "bold"),
+        plot.caption = element_text(size = 15),
+        legend.text = element_text(size = 20),
+        legend.title = element_text(size = 25, face = "bold"),
+        # legend.background = element_rect(color = "black"),
+        strip.text = element_text(size = 15, face = "bold" ),
+        # strip.clip = "on",
+        panel.border = element_rect(fill = NA)
+        )+
+  scale_y_continuous(
+    expand = expansion(mult = c(0.05, 0.35))
+  )
+
+p1
+
+# ggsave(file = paste0(path ,path2,'/Figure_3_5_redone', '/Cytokine_viz_Sex_Severity.svg'), plot = p1, width=16, height = 12)
+
+
+```
+Subsetting cytokines into groups
+
+```{r}
+temp <- df_diff_2 %>%
+  select(`MCP-1`,
+         `MIP-1b`,
+         `MIP-1a`,
+         RANTES,
+         `G-CSF`,
+         `GM-CSF`,
+         KC,
+         `TNF-a`,
+         IFNg,
+         `IL-1a`,
+         `IL-1b`,
+         `IL-2`,
+         `IL-6`,
+         `IL-4`,
+         `IL-10`) %>%
+  t() %>% as.data.frame()
+
+
+  hc_fit <- hc_spec %>%
+    fit(~ .,
+    data = temp
+    )
+
+hc_fit$fit$labels <- rownames(temp)
+p1 <- hc_fit$fit %>% as.dendrogram() %>%
+  ggdendrogram(rotate = TRUE, theme_dendro = FALSE) +
+  theme_classic()+
+  labs(y = "Height", x = "Cytokine Names")
+
+# ggsave(file = paste0(path ,path2,'/Figure_3_redone', '/Cytokine_Hclust_Dendro.svg'), plot = p1, width=10, height = 6)
+
+
+```
+
+```{r}
+cytokine_hclust_group <- rownames(temp)[hc_fit$fit$order]
+
+cytokine_hclust_group_1 <- cytokine_hclust_group[1:8]
+
+cytokine_hclust_group_2 <- cytokine_hclust_group[9:15]
+
+cytokine_hclust_group <- list(cytokine_hclust_group_1,
+                              cytokine_hclust_group_2)
+
+plot_list <- list()
+
+for (i in 1:2) {
+  
+
+temp_df <- 
+  df_merged_severity_2 %>% 
+  select(Mouse_ID, Severity_2) %>% 
+  right_join(df_merged_all,
+             by =join_by( Mouse_ID)) %>% 
+  mutate(Severity_2 = ifelse(Day.x == 0, "control", Severity_2)) %>% 
+  mutate(categories = paste(Severity_2, Sex, sep= '_')) %>% 
+  pivot_longer(
+        cols = cytokine_hclust_group[[i]] %>% all_of(), 
+        names_to = "variable",
+        values_to = "value"
+    ) %>% group_by(Day.x,categories,variable) %>%   
+  mutate(value = log10(0.003+value)) %>%
+    mutate(mean = mean(value),
+           SE = sd(value)/sqrt(length(value)),
+           sd = sd(value),
+           ymin = mean(value) - SE,
+           ymax = mean(value) + SE,
+           ) %>% 
+  ungroup()
+  
+
+p2 <- temp_df %>% 
+  ggplot(
+    mapping = aes(
+      x = as.character(Day.x),
+      group = categories,
+      ),
+    ) +
+  geom_errorbar(
+    aes(ymin = ymin,
+        ymax = ymax,
+        x = as.character(Day.x),
+        group = categories),
+    linewidth = 0.5,
+    position = position_dodge(width = 0.5),
+    width = 0.25,
+    )+
+  geom_line(
+    data = temp_df %>% 
+      filter(Day.x >0),
+    aes(x = as.character(Day.x),
+        y = mean,
+        color = Sex,
+        group = categories,
+        linetype = Severity_2,
+        ),
+    position=position_dodge(width=0.5),
+    ) +
+  geom_point(
+    aes(x = as.character(Day.x),
+        y = mean,
+        fill= Sex,
+        shape = Severity_2,),
+  position=position_dodge(width=0.5),
+  size= 3,
+  )+
+  geom_text(
+    data = df_aov_merged_graph %>%
+      filter(variable %in% cytokine_hclust_group[[i]]),
+    aes(y = as_npc(ypos_npc),
+        x = as.character(DPI),
+        label = pvalue_signif,
+        group = NULL),
+    size = 4.5
+  )+
+  facet_wrap(
+    ~factor(variable, levels=hc_fit$fit$labels[hc_fit$fit$order]),
+    ncol = 3,
+    scales = 'free',
+    )+
+  labs(
+    fill = "Sex",
+    shape = "Severity"
+    )+
+  scale_fill_manual(values = c("Male" = "#00BFC4", "Female" = "#F8766D"))+
+  scale_shape_manual(values = c("mild" = 22, "severe" = 24, "control" = 21))+
+  scale_linetype_manual(values = c("mild" = 2, "severe" = 1), guide = "none")+
+  guides(fill = guide_legend(order = 1),
+         color = guide_legend(order = 1))+
+  ylab("log10 pg/mL per g lobe") +
+  xlab("Days Post Infection")+
+  theme_classic()+
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        # axis.line = element_line,
+        # text = element_text(size = 20, family = 'sans'),
+        axis.title = element_text(size = 20),
+        axis.text = element_text(size = 12),
+        plot.caption = element_text(size = 15),
+        legend.text = element_text(size = 20),
+        legend.title = element_text(size = 25),
+        # legend.background = element_rect(color = "black"),
+        strip.text = element_text(size = 15 ),
+        # strip.clip = "on",
+        panel.border = element_rect(fill = NA,linewidth = 1.5),
+        axis.line = element_blank()
+        )+
+  scale_y_continuous(
+    expand = expansion(mult = c(0.05, 0.35))
+  )
+
+plot_list[[i]] <- p2
+
+# ggsave(file = paste0(path ,path2,file_name, '/REDONE_Cytokine_Hclust_Group', i,'_viz_Sex.svg'), plot = p2, width=15, height = 12)
+# ggsave(file = paste0(path ,path2,file_name, '/REDONE_AGAIN_Cytokine_Hclust_Group', i,'_viz_Sex.svg'), plot = p2, width=15, height = 12)
+# 
+# ggsave(file = paste0(path ,path2, '/Temp', '/Temp_tall_Cytokine_Hclust_Group', i,'_viz_Sex.svg'), plot = p2, width=9, height = 12)
+# 
+
+}
+
+
+# getwd()
+plot_list[[1]]
+
+
+```
+
+```{r}
+for (i in 2:3) {
+  
+  cnames <- df_inclination %>% 
+        filter(varname %in% celltype_names) %>% 
+        mutate(variable = varname) %>% 
+        select(variable, Lymph_Myl) %>% 
+    filter(Lymph_Myl ==i)
+  
+  cnames <- cnames$variable
+  
+  # remove total CD11 b+, CCD4, CD8 and T-Cells due to technicalities 
+  
+  cnames <- cnames[!cnames %in% c("CD11b CCR2", "T-Cells", "CD4 T-Cells", "CD8 T-Cells")]
+    
+      
+  
+  temp_df <- 
+    df_merged_severity_2 %>% 
+    select(Mouse_ID, Severity_2) %>% 
+    right_join(df_merged_all,
+               by =join_by( Mouse_ID)) %>% 
+    mutate(Severity_2 = ifelse(Day.x == 0, "control", Severity_2)) %>% 
+    mutate(categories = paste(Severity_2, Sex, sep= '_')) %>% 
+    pivot_longer(
+          cols = cnames %>% all_of(), 
+          names_to = "variable",
+          values_to = "value"
+      ) %>% group_by(Day.x,categories,variable) %>%   
+    mutate(value = log10(0.003+value)) %>%
+      mutate(mean = mean(value),
+             SE = sd(value)/sqrt(length(value)),
+             sd = sd(value),
+             ymin = mean(value) - SE,
+             ymax = mean(value) + SE,
+             ) %>% 
+    ungroup()
+    
+  
+  p2 <- temp_df %>% 
+    ggplot(
+      mapping = aes(
+        x = as.character(Day.x),
+        group = categories,
+        ),
+      ) +
+    geom_errorbar(
+        aes(ymin = ymin,
+            ymax = ymax,
+            x = as.character(Day.x),
+            group = categories),
+      linewidth = 0.5,
+      position = position_dodge(width = 0.5),
+      width = 0.25,
+    )+
+  
+    geom_line(
+      data = temp_df %>% 
+        filter(Day.x >0),
+      aes(x = as.character(Day.x),
+          y = mean,
+          color = Sex,
+          group = categories,
+          linetype = Severity_2,
+          ),
+      position=position_dodge(width=0.5),
+      ) +
+    
+    geom_point(
+      aes(x = as.character(Day.x),
+          y = mean,
+          fill= Sex,
+          shape = Severity_2,
+          ),
+    position=position_dodge(width=0.5),
+    size= 3,
+    )+
+    geom_text(
+      data = df_aov_merged_graph %>%
+        filter(variable %in% cnames),
+      aes(y = as_npc(ypos_npc),
+          x = as.character(DPI),
+          label = pvalue_signif,
+          group = NULL),
+      size = 4.5
+    )+
+    facet_wrap(~factor(variable),
+               ncol = 3,
+               scales = 'free') +
+    labs(
+      fill = "Sex",
+      color = "Sex",
+      shape = "Severity"
+      )+
+    scale_fill_manual(values = c("Male" = "#00BFC4", "Female" = "#F8766D"))+
+    scale_shape_manual(values = c("mild" = 22, "severe" = 24, "control" = 21))+
+    scale_linetype_manual(values = c("mild" = 2, "severe" = 1), guide = "none")+
+    guides(fill = guide_legend(order = 1),
+           color = guide_legend(order = 1))+
+    ylab("log10 %CD45 Cells") +
+    theme_classic()+
+    xlab("Days Post Infection")+
+    theme(panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          panel.background = element_blank(),
+          # axis.line = element_line,
+          # text = element_text(size = 20, family = 'sans'),
+          axis.title = element_text(size = 20),
+          axis.text = element_text(size = 12),
+          plot.caption = element_text(size = 15),
+          legend.text = element_text(size = 20),
+          legend.title = element_text(size = 25),
+          # legend.background = element_rect(color = "black"),
+          strip.text = element_text(size = 15 ),
+          # strip.clip = "on",
+          panel.border = element_rect(fill = NA,linewidth = 1.5),
+          axis.line = element_blank()
+          )+
+    scale_y_continuous(
+      expand = expansion(mult = c(0.05, 0.35))
+    )
+  plot_list[[i-1]] <- p2
+
+# ggsave(file = paste0(path ,path2,file_name, '/REDONE_Celltype_Hclust_Group_fn', i-1 ,'_viz_Sex_Severity.svg'), plot = p2, width=15, height = 12)
+# ggsave(file = paste0(path ,path2,file_name, '/REDONE_AGAIN_Celltype_Hclust_Group_fn', i-1 ,'_viz_Sex_Severity.svg'), plot = p2, width=15, height = 9)
+
+}
+
+plot_list[[1]]
+```
+```{r}
+# df_aov_merged %>%
+  # write.csv(file = paste0(path ,path2,file_name, '/ANOVA_table.csv'))
+```
+
+

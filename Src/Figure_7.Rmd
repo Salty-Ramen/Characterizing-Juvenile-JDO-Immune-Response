@@ -1,0 +1,392 @@
+---
+title: "Figure_6"
+author: "Ramakrishna Suresh"
+date: "2025-04-18"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+
+path <- getwd()
+
+path2 <-here::here("Outputs", "JDO Manuscript Contents", "Final Figure folder", "Figure_7")
+
+source(
+  here::here("Src", "Boilerplate.R"),
+  )
+
+```
+
+
+
+
+<!-- ```{r} -->
+
+<!-- days <- c(3,4,5,8) -->
+
+<!-- male_cutrees <- c(7,4,6,5)    #4 -->
+<!-- female_cutrees <- c(4,6,2,5)  #2 -->
+
+<!-- female_clust_images <- c() -->
+
+<!-- plot_list  <- list() -->
+
+<!-- for (sex in c("Male", "Female")) { -->
+<!--   if(sex %in% "Male") { -->
+<!--     cutree <- male_cutrees -->
+<!--   } else { -->
+<!--       cutree <- female_cutrees -->
+<!--     } -->
+
+
+<!--   for (i in 1:4) { -->
+<!--     # i=3 -->
+<!--     # sex = "Male" -->
+<!--  dt1 <- df_diff_2 %>% drop_na() %>% -->
+<!--   filter(Day.x %in% days[i]) %>% -->
+<!--   filter(Sex %in% sex) %>%  -->
+<!--   recipe(~.) %>%  -->
+<!--   update_role( -->
+<!--     Mouse_ID, -->
+<!--     c("Severity_2", "Day_0_BW", "Sex", "Day.x", severity_features), -->
+<!--     new_role = "id" -->
+<!--     ) %>% -->
+<!--   step_dummy(all_factor_predictors()) %>%  -->
+<!--   step_normalize(all_numeric_predictors()) %>% -->
+<!--   prep() %>% juice() %>%  -->
+<!--   select(-c("Severity_2", "Day_0_BW", "Day.x", "Sex", severity_features)) -->
+
+<!--   hc_fit <- hc_spec %>% -->
+<!--     fit(~ ., -->
+<!--     data = dt1 %>% select(-Mouse_ID) -->
+<!--     ) -->
+
+
+<!--   clusters_hc_fit<- cutree(hc_fit$fit, k = cutree[i]) -->
+
+<!--   df_cluster <- df_diff_2 %>%  -->
+<!--     filter(Day.x %in% days[i]) %>% -->
+<!--     filter(Sex %in% sex) %>%  -->
+<!--     # mutate_at(colnames_for_log, ~log10(0.00003+.)) %>% -->
+<!--     mutate(hclust = clusters_hc_fit) -->
+
+<!--   temp_mat <- df_cluster %>% -->
+<!--     select(colnames_for_log) %>%   -->
+<!--     relocate(temp_ord) %>%  -->
+<!--     as.matrix() -->
+
+<!--   rownames(temp_mat) <- df_cluster$Mouse_ID -->
+
+<!--   df_annot <- data.frame(Severity = factor(df_cluster$Severity_2), -->
+<!--                          Sex = factor(df_cluster$Sex) -->
+<!--                          ) -->
+
+<!--   rownames(df_annot) <- rownames(temp_mat) -->
+
+<!--   pl <-  temp_mat %>% t() %>% -->
+<!--     pheatmap( -->
+<!--     cluster_cols = hc_fit$fit, -->
+<!--     cluster_rows = TRUE, -->
+<!--     gaps_row = c(6,21), -->
+<!--     show_colnames = FALSE, -->
+<!--     # labels_row = hc_fit$fit$labels , -->
+<!--     # legend_breaks = seq(-1.5,1.5,0.5), -->
+<!--     # # legend_labels = c("Downregulated",  "Upregulated"), -->
+<!--     # annotation_row = df_annot, -->
+<!--     # # annotation_names_row = FALSE, -->
+<!--     annotation_col = df_annot, -->
+<!--     # annotation_names_col = FALSE, -->
+<!--     annotation_colors = list( -->
+<!--       Sex = c(Male = "#00BFC4", Female = "#F8766D"), -->
+<!--       Severity = c(severe = "red", mild =  "blue") -->
+<!--     ), -->
+<!--     annotation_legend = FALSE, -->
+<!--     cutree_cols = cutree[i], -->
+<!--     breaks = seq(-1.5,1.5, length.out = 300+1), -->
+<!--     color = colorRampPalette(c("#00007F", "blue", "#007FFF", "white", "#FF7F00", "red", "#7F0000"))(300), -->
+<!--     # color = viridis(n = 300, option = "H"), -->
+<!--     # show_colnames = FALSE, -->
+<!--     fontsize = 20, -->
+<!--     width = 20, -->
+<!--     border_color = NA, -->
+<!--     # main = paste(sex, "Day", days[i],"hclust with heatmaps") -->
+<!--     ) %>% as.ggplot() -->
+
+<!--   plot_list[[i]] <- pl -->
+<!--   if (sex == "Female") { -->
+<!--     i = i + 4 -->
+<!--     plot_list[[i]] <- pl -->
+<!--     i = i - 4 -->
+<!--   } -->
+
+<!-- # ggsave(file = paste0(path ,path2,file_name, '/heatmap_hclust_',days[i],'_', sex, '_new_label.svg'), -->
+<!-- #        plot = pl, -->
+<!-- #        width=15, height = 15, -->
+<!-- #        ) -->
+
+
+<!--   } -->
+<!--   } -->
+
+<!-- ``` -->
+
+<!-- Male Day 8  -->
+
+<!-- ```{r} -->
+
+<!-- i <- 4 -->
+<!-- sex <- "Male" -->
+
+
+<!-- dt1 <- df_diff_2 %>% drop_na() %>% -->
+<!--   filter(Day.x %in% days[i]) %>% -->
+<!--   filter(Sex %in% sex) %>%  -->
+<!--   recipe(~.) %>%  -->
+<!--   update_role( -->
+<!--     Mouse_ID, -->
+<!--     c("Severity_2", "Day_0_BW", "Sex", "Day.x", severity_features), -->
+<!--     new_role = "id" -->
+<!--     ) %>% -->
+<!--   step_dummy(all_factor_predictors()) %>%  -->
+<!--   step_normalize(all_numeric_predictors()) %>% -->
+<!--   prep() %>% juice() %>%  -->
+<!--   select(-c("Severity_2", "Day_0_BW", "Day.x", "Sex", severity_features)) -->
+
+<!--   hc_fit <- hc_spec %>% -->
+<!--     fit(~ ., -->
+<!--     data = dt1 %>% select(-Mouse_ID) -->
+<!--     ) -->
+
+
+<!--   clusters_hc_fit<- cutree(hc_fit$fit, k = cutree[i]) -->
+
+<!--   df_cluster <- df_diff_2 %>%  -->
+<!--     filter(Day.x %in% days[i]) %>% -->
+<!--     filter(Sex %in% sex) %>%  -->
+<!--     # mutate_at(colnames_for_log, ~log10(0.00003+.)) %>% -->
+<!--     mutate(hclust = clusters_hc_fit) -->
+
+<!--   temp_mat <- df_cluster %>% -->
+<!--     select(colnames_for_log) %>%   -->
+<!--     relocate(temp_ord) %>%  -->
+<!--     as.matrix() -->
+
+<!--   rownames(temp_mat) <- df_cluster$Mouse_ID -->
+
+<!--   df_annot <- data.frame(Severity = factor(df_cluster$Severity_2), -->
+<!--                          Sex = factor(df_cluster$Sex) -->
+<!--                          ) -->
+
+<!--   rownames(df_annot) <- rownames(temp_mat) -->
+
+<!--   pl <-  temp_mat %>% t() %>% -->
+<!--     pheatmap( -->
+<!--     cluster_cols = hc_fit$fit, -->
+<!--     cluster_rows = TRUE, -->
+<!--     gaps_row = c(6,21), -->
+<!--     show_colnames = FALSE, -->
+<!--     show_rownames = FALSE, -->
+<!--     # labels_row = hc_fit$fit$labels , -->
+<!--     # legend_breaks = seq(-1.5,1.5,0.5), -->
+<!--     # # legend_labels = c("Downregulated",  "Upregulated"), -->
+<!--     # annotation_row = df_annot, -->
+<!--     # # annotation_names_row = FALSE, -->
+<!--     legend = FALSE, -->
+<!--     annotation_col = df_annot, -->
+<!--     annotation_names_col = FALSE, -->
+<!--     annotation_colors = list( -->
+<!--       Sex = c(Male = "#00BFC4", Female = "#F8766D"), -->
+<!--       Severity = c(severe = "red", mild =  "blue") -->
+<!--     ), -->
+<!--     annotation_legend = FALSE, -->
+<!--     cutree_cols = cutree[i], -->
+<!--     breaks = seq(-1.5,1.5, length.out = 300+1), -->
+<!--     color = colorRampPalette(c("#00007F", "blue", "#007FFF", "white", "#FF7F00", "red", "#7F0000"))(300), -->
+<!--     # color = viridis(n = 300, option = "H"), -->
+<!--     # show_colnames = FALSE, -->
+<!--         fontsize = 12, -->
+<!--     fontsize_row = 15, -->
+<!--     border_color = NA, -->
+<!--     # main = paste(sex, "Day", days[i],"hclust with heatmaps") -->
+<!--     ) %>% as.ggplot() -->
+
+<!-- pl -->
+
+<!-- # ggsave(file = paste0(path2, '/heatmap_hclust_',days[i],'_', sex, '_new_label.svg'), -->
+<!-- #        plot = pl, -->
+<!-- #        width=10, height = 15, -->
+<!-- #        ) -->
+
+<!-- ``` -->
+<!-- ```{r} -->
+<!-- i <- 4 -->
+<!-- sex <- "Female" -->
+
+
+<!-- dt1 <- df_diff_2 %>% drop_na() %>% -->
+<!--   filter(Day.x %in% days[i]) %>% -->
+<!--   filter(Sex %in% sex) %>%  -->
+<!--   recipe(~.) %>%  -->
+<!--   update_role( -->
+<!--     Mouse_ID, -->
+<!--     c("Severity_2", "Day_0_BW", "Sex", "Day.x", severity_features), -->
+<!--     new_role = "id" -->
+<!--     ) %>% -->
+<!--   step_dummy(all_factor_predictors()) %>%  -->
+<!--   step_normalize(all_numeric_predictors()) %>% -->
+<!--   prep() %>% juice() %>%  -->
+<!--   select(-c("Severity_2", "Day_0_BW", "Day.x", "Sex", severity_features)) -->
+
+<!--   hc_fit <- hc_spec %>% -->
+<!--     fit(~ ., -->
+<!--     data = dt1 %>% select(-Mouse_ID) -->
+<!--     ) -->
+
+
+<!--   clusters_hc_fit<- cutree(hc_fit$fit, k = cutree[i]) -->
+
+<!--   df_cluster <- df_diff_2 %>%  -->
+<!--     filter(Day.x %in% days[i]) %>% -->
+<!--     filter(Sex %in% sex) %>%  -->
+<!--     # mutate_at(colnames_for_log, ~log10(0.00003+.)) %>% -->
+<!--     mutate(hclust = clusters_hc_fit) -->
+
+<!--   temp_mat <- df_cluster %>% -->
+<!--     select(colnames_for_log) %>%   -->
+<!--     relocate(temp_ord) %>%  -->
+<!--     as.matrix() -->
+
+<!--   rownames(temp_mat) <- df_cluster$Mouse_ID -->
+
+<!--   df_annot <- data.frame(Severity = factor(df_cluster$Severity_2), -->
+<!--                          Sex = factor(df_cluster$Sex) -->
+<!--                          ) -->
+
+<!--   rownames(df_annot) <- rownames(temp_mat) -->
+
+<!--   pl <-  temp_mat %>% t() %>% -->
+<!--     pheatmap( -->
+<!--     cluster_cols = hc_fit$fit, -->
+<!--     cluster_rows = FALSE, -->
+<!--     gaps_row = c(6,21), -->
+<!--     show_colnames = FALSE, -->
+<!--     # show_rownames = FALSE, -->
+<!--     # labels_row = hc_fit$fit$labels , -->
+<!--     # legend_breaks = seq(-1.5,1.5,0.5), -->
+<!--     # # legend_labels = c("Downregulated",  "Upregulated"), -->
+<!--     # annotation_row = df_annot, -->
+<!--     # # annotation_names_row = FALSE, -->
+<!--     # legend = FALSE, -->
+<!--     annotation_col = df_annot, -->
+<!--     # annotation_names_col = FALSE, -->
+<!--     annotation_colors = list( -->
+<!--       Sex = c(Male = "#00BFC4", Female = "#F8766D"), -->
+<!--       Severity = c(severe = "red", mild =  "blue") -->
+<!--     ), -->
+<!--     # annotation_legend = FALSE, -->
+<!--     cutree_cols = cutree[i], -->
+<!--     breaks = seq(-1.5,1.5, length.out = 300+1), -->
+<!--     color = colorRampPalette(c("#00007F", "blue", "#007FFF", "white", "#FF7F00", "red", "#7F0000"))(300), -->
+<!--     # color = viridis(n = 300, option = "H"), -->
+<!--     # show_colnames = FALSE, -->
+<!--     fontsize = 12, -->
+<!--     fontsize_row = 15, -->
+<!--     border_color = NA, -->
+<!--     # filename = paste0(path ,path2,file_name, '/heatmap_hclust_',days[i],'_', sex, '_new_label.png') -->
+<!--     # main = paste(sex, "Day", days[i],"hclust with heatmaps") -->
+<!--     ) %>% as.ggplot() -->
+<!-- # library(pheatmap) -->
+
+<!-- # ggsave(file = paste0(path2, '/heatmap_hclust_',days[i],'_', sex, '_new_label.svg'), -->
+<!-- #        plot = pl, -->
+<!-- #        width=12, height = 15, -->
+<!-- #        ) -->
+<!-- ``` -->
+
+```{r}
+# i <- 4
+# sex <- "Female"
+
+
+dt1 <- df_diff_2 %>% drop_na() %>%
+  filter(Day.x %in% 8) %>%
+  recipe(~.) %>% 
+  update_role(
+    Mouse_ID,
+    c("Severity_2", "Day_0_BW", "Sex", "Day.x", severity_features),
+    new_role = "id"
+    ) %>%
+  step_dummy(all_factor_predictors()) %>% 
+  step_normalize(all_numeric_predictors()) %>%
+  prep() %>% juice() %>% 
+  select(-c("Severity_2", "Day_0_BW", "Day.x", "Sex", severity_features))
+
+  hc_fit <- hc_spec %>%
+    fit(~ .,
+    data = dt1 %>% select(-Mouse_ID)
+    )
+
+
+  clusters_hc_fit<- cutree(hc_fit$fit, k = 3)
+  
+  df_cluster <- df_diff_2 %>% 
+    filter(Day.x %in% days[i]) %>%
+    mutate(hclust = clusters_hc_fit)
+  
+  temp_mat <- df_cluster %>%
+    select(colnames_for_log) %>%  
+    relocate(temp_ord) %>% 
+    as.matrix()
+  
+  rownames(temp_mat) <- df_cluster$Mouse_ID
+  
+  df_annot <- data.frame(Severity = factor(df_cluster$Severity_2),
+                         Sex = factor(df_cluster$Sex)
+                         )
+  
+  rownames(df_annot) <- rownames(temp_mat)
+  
+  pl <-  temp_mat %>% t() %>%
+    pheatmap(
+    cluster_cols = hc_fit$fit,
+    cluster_rows = TRUE,
+    gaps_row = c(6,21),
+    show_colnames = FALSE,
+    # show_rownames = FALSE,
+    # labels_row = hc_fit$fit$labels ,
+    # legend_breaks = seq(-1.5,1.5,0.5),
+    # # legend_labels = c("Downregulated",  "Upregulated"),
+    # annotation_row = df_annot,
+    # # annotation_names_row = FALSE,
+    # legend = FALSE,
+    annotation_col = df_annot,
+    # annotation_names_col = FALSE,
+    annotation_colors = list(
+      Severity = c(severe = "red", mild =  "blue"),
+      Sex = c(Male = "#00BFC4", Female = "#F8766D")
+    ),
+    # annotation_legend = FALSE,
+    cutree_cols = cutree[i],
+    breaks = seq(-1.5,1.5, length.out = 300+1),
+    color = colorRampPalette(c("#00007F", "blue", "#007FFF", "white", "#FF7F00", "red", "#7F0000"))(300),
+    # color = viridis(n = 300, option = "H"),
+    # show_colnames = FALSE,
+    fontsize = 15,
+    fontsize_row = 15,
+    border_color = NA,
+    # filename = paste0(path ,path2,file_name, '/heatmap_hclust_',days[i],'_', sex, '_new_label.png')
+    # main = paste(sex, "Day", days[i],"hclust with heatmaps")
+    ) %>% as.ggplot()
+
+  
+# ggsave(file = paste0(path2, '/COMBINED_heatmap_hclust_',days[i],'_', '_new_label.svg'),
+#        plot = pl,
+#        width=22, height = 15,
+#        )
+```
+
